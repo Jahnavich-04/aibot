@@ -5,7 +5,7 @@ import string
 import os
 from nltk.stem import WordNetLemmatizer
 
-# Download NLTK resources if not already present (optional: skip in production)
+# Download NLTK resources once (optional in production)
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -13,7 +13,7 @@ nltk.download('omw-1.4')
 app = Flask(__name__)
 lemmatizer = WordNetLemmatizer()
 
-# Define intents and keywords
+# Intent keywords
 intents = {
     "greeting": ["hello", "hi", "hey", "good morning", "good evening"],
     "thanks": ["thanks", "thank you", "thx"],
@@ -35,7 +35,7 @@ intents = {
     "default": []
 }
 
-# Define responses
+# Intent responses
 responses = {
     "greeting": ["Hello! This is Aditya Degree College for Women's, How can I assist you today?"],
     "thanks": ["You're welcome!"],
@@ -69,12 +69,12 @@ responses = {
     "default": ["I'm sorry, I didn't understand that. Could you please rephrase?"]
 }
 
-# Preprocessing
+# Preprocess input
 def preprocess(sentence):
     tokens = nltk.word_tokenize(sentence.lower())
     return [lemmatizer.lemmatize(word) for word in tokens if word not in string.punctuation]
 
-# Intent prediction
+# Predict intent
 def predict_intent(user_input):
     processed_input = preprocess(user_input)
     best_intent = "default"
@@ -87,7 +87,7 @@ def predict_intent(user_input):
             best_intent = intent
     return best_intent
 
-# Routes
+# Flask Routes
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -99,7 +99,7 @@ def get_bot_response():
     response = random.choice(responses[intent])
     return jsonify({"response": response})
 
-# Start the server (for Render)
+# Run app (local + Render)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

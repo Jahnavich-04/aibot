@@ -4,13 +4,15 @@ import random
 import string
 import os
 from nltk.stem import WordNetLemmatizer
+from flask_cors import CORS
 
-# Download NLTK resources once (optional in production)
+# Download NLTK resources
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for frontend interaction
 lemmatizer = WordNetLemmatizer()
 
 # Intent keywords
@@ -87,19 +89,22 @@ def predict_intent(user_input):
             best_intent = intent
     return best_intent
 
-# Flask Routes
+# Routes
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return "<h2>🤖 Aditya College Bot is Running!</h2>"
 
 @app.route("/get", methods=["POST"])
 def get_bot_response():
-    user_input = request.form["msg"]
+    data = request.get_json()
+    if not data or "msg" not in data:
+        return jsonify({"response": "Invalid request format."}), 400
+    user_input = data["msg"]
     intent = predict_intent(user_input)
     response = random.choice(responses[intent])
     return jsonify({"response": response})
 
-# Run app (local + Render)
+# Run the app
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))  # Use PORT env var for Render
     app.run(host="0.0.0.0", port=port)

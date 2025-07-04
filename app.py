@@ -5,8 +5,7 @@ import string
 import os
 from nltk.stem import WordNetLemmatizer
 
-
-# Download NLTK resources
+# Download NLTK resources if not already present (optional: skip in production)
 nltk.download('punkt')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -80,17 +79,15 @@ def predict_intent(user_input):
     processed_input = preprocess(user_input)
     best_intent = "default"
     max_matches = 0
-
     for intent, keywords in intents.items():
         keyword_tokens = preprocess(" ".join(keywords))
         matches = sum(1 for word in processed_input if word in keyword_tokens)
         if matches > max_matches:
             max_matches = matches
             best_intent = intent
-
     return best_intent
 
-# Flask routes
+# Routes
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -102,8 +99,7 @@ def get_bot_response():
     response = random.choice(responses[intent])
     return jsonify({"response": response})
 
-# Run the app
+# Start the server (for Render)
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Render sets the PORT env variable
-    app.run(host="0.0.0.0", port=port, debug=True)
-    
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
